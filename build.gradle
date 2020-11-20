@@ -1,0 +1,201 @@
+plugins {
+    id 'idea'
+    id 'org.jetbrains.kotlin.jvm' version '1.4.10'
+    id 'org.jetbrains.kotlin.plugin.spring' version '1.4.10'
+    id 'jacoco'
+    id 'org.springframework.boot' version '2.4.0'
+    id 'io.spring.dependency-management' version '1.0.10.RELEASE'
+}
+
+ext {
+    kotlin_version = "1.4.10"
+    jackson_version = "2.11.3"
+    swagger_version = "2.9.2"
+    junit_version = "5.7.0"
+    testcontainers_version = "1.15.0"
+    flyway_version = "7.2.0"
+
+    limits = [
+        'branch'     : 0,
+        'line'       : 0
+    ]
+}
+
+
+bootJar {
+    mainClass.set('com.github.fnunezkanut.AppKt')
+    manifest {
+        attributes(
+                "Implementation-Title": "ACR REST API",
+                'Implementation-Version': archiveVersion
+        )
+    }
+}
+
+
+repositories {
+    mavenCentral()
+    jcenter()
+}
+
+sourceSets {
+    integrationTest {
+        compileClasspath += sourceSets.main.output
+        runtimeClasspath += sourceSets.main.output
+    }
+}
+
+configurations {
+    integrationTestImplementation.extendsFrom implementation
+    integrationTestRuntimeOnly.extendsFrom runtimeOnly
+}
+
+dependencies {
+
+    implementation(
+            //various spring boot dependencies
+            "org.springframework.boot:spring-boot-starter-web",
+            "org.springframework.boot:spring-boot-starter-actuator",
+            // Kotlin dependencies
+            "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version",
+            "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version",
+            //jackson stuff
+            "com.fasterxml.jackson.core:jackson-core:$jackson_version",
+            "com.fasterxml.jackson.core:jackson-databind:$jackson_version",
+            "com.fasterxml.jackson.module:jackson-module-kotlin:$jackson_version",
+            //gives us nice logging in kotlin
+            "io.github.microutils:kotlin-logging:2.0.3"
+    )
+
+    //have these available in both test and integration tests
+    testImplementation(
+            "org.springframework.boot:spring-boot-starter-test",
+            //mockk a very very nice kotlin mocking library
+            "io.mockk:mockk:1.10.2",
+            //assertj for more readable tests
+            'org.assertj:assertj-core:3.18.1'
+    )
+
+    integrationTestImplementation(
+            //testcontainers for db repo integration tests
+            "org.testcontainers:postgresql:$testcontainers_version",
+            "org.flywaydb:flyway-core:$flyway_version",
+            "io.mockk:mockk:1.10.2",
+            "org.junit.jupiter:junit-jupiter-api:$junit_version",
+            'org.assertj:assertj-core:3.18.1'
+    )
+
+    integrationTestRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+}
+
+//ensure we target java8
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
+    kotlinOptions.jvmTarget = "1.8"
+}
+
+
+wrapper {
+    distributionType = Wrapper.DistributionType.ALL
+}
+
+test {
+    useJUnitPlatform() //use junit5
+    testLogging {
+        events "skipped", "failed"
+    }
+}
+
+
+task integrationTest(type: Test) {
+    description 'Runs integration tests.'
+
+    testClassesDirs = sourceSets.integrationTest.output.classesDirs
+    classpath = sourceSets.integrationTest.runtimeClasspath
+    useJUnitPlatform {
+        excludeTags 'readiness'
+    }
+    testLogging {
+        events "passed", "skipped", "failed", "standardError"
+    }
+}
+
+
+//jacoco code coverage measurement
+jacoco {
+    toolVersion = "0.8.6"
+    reportsDir = file("$buildDir/jacoco")
+}
+
+jacocoTestReport {
+    reports {
+        //XML required for the below coverage checks
+        xml.enabled = true
+    }
+
+    //exclude these packages from coverage result as they are config/boilerplate
+    afterEvaluate {
+        classDirectories.setFrom(files(classDirectories.files.collect {
+            fileTree(dir: it, exclude: [
+                    'com/github/fnunezkanut/model/**',
+                    'com/github/fnunezkanut/config/**',
+                    'com/github/fnunezkanut/App**'
+            ])
+        }))
+    }
+
+    doLast {
+        def report = file("${jacoco.reportsDir}/test/jacocoTestReport.xml")
+        logger.lifecycle("Checking coverage results: ${report}")
+
+        def parser = new XmlParser()
+        parser.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false)
+        parser.setFeature("http://apache.org/xml/features/disallow-doctype-decl", false)
+        def results = parser.parse(report)
+
+        def percentage = {
+            def covered = it.'@covered' as Double
+            def missed = it.'@missed' as Double
+            ((covered / (covered + missed)) * 100).round(2)
+        }
+
+        def counters = results.counter
+        def metrics = [:]
+        metrics << [
+                'branch': percentage(counters.find { it.'@type'.equals('BRANCH') }),
+                'line'  : percentage(counters.find { it.'@type'.equals('LINE') })
+        ]
+        logger.lifecycle("metrics: ${metrics.toString()}")
+
+
+        def failures = []
+        metrics.each {
+            def limit = limits[it.key]
+            if (it.value < limit) {
+                failures.add("- ${it.key} coverage rate is: ${it.value}%, minimum is ${limit}%")
+            }
+        }
+
+        if (failures) {
+            logger.quiet("------------------ Code Coverage Failed -----------------------")
+            failures.each {
+                logger.quiet(it)
+            }
+            logger.quiet("---------------------------------------------------------------")
+            throw new GradleException("Code coverage failed")
+        } else {
+            logger.quiet("Passed Code Coverage Checks")
+        }
+    }
+}
+check.dependsOn jacocoTestReport
+
+
+
+//an alias for `./gradlew clean build jacocoTestReport` to save typing
+task cb(dependsOn: ['clean', 'build', 'jacocoTestReport'])
+build.mustRunAfter clean
+
+//skip compilation of java, this project has no java
+tasks.withType(JavaCompile) {
+    enabled = false
+}
