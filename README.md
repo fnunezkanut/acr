@@ -13,13 +13,24 @@ Sample spring boot service to model an Academic Course Registration system
 TODO
 
 
-### Building and running
+### Building with gradle
 
 ```
 cd ~/github/acr/
-./gradlew cw
+./gradlew cb
 ```
 This cleans up project, builds it and runs jacoco coverage report
+
+### Packaging up and running locally in docker
+
+```
+cd ~/github/acr/
+./gradlew cb
+docker build --no-cache -t acr:latest -f Dockerfile
+docker run -d --rm -p 8080:8080 acr:latest
+curl "http://localhost:8080/v1/version"
+#docker ps -a
+```
 
 ### Documentation
 
