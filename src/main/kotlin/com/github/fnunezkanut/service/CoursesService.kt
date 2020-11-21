@@ -54,4 +54,22 @@ class CoursesService(
 
     //double check provided name value from user input
     fun checkName(_name: String): String = _name.trim()
+
+
+    //creates a course<>professor relation
+    fun assignProfessor(courseUid: String, professorUid: String) {
+        val added = coursesRepo.addProfessorRelation(courseUid, professorUid)
+        if (!added) {
+            throw ApiError(500, "Failed to assign a professor to a course")
+        }
+    }
+
+
+    //creates a course<>student relation
+    fun registerStudent(courseUid: String, studentUid: String) {
+        val added = coursesRepo.addStudentRelation(courseUid, studentUid)
+        if (!added) {
+            throw ApiError(500, "Failed to register a student to a course")
+        }
+    }
 }
