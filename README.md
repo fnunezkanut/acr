@@ -32,6 +32,23 @@ curl "http://localhost:8080/v1/version"
 #docker ps -a
 ```
 
+### Flyway and setting up a local development database
+
+To install, run, setup, populate a local postgres12 db on OSX:
+ 
+```
+brew install postgresql@12
+brew services start postgresql@12
+brew services list
+````
+
+Now that we have postgres (Same version as RDS) running, lets flyway migrate
+```
+cd ~/github/acr/
+./gradlew flywayMigrate -i -Pflyway.url="jdbc:postgresql://localhost:5432/postgres"
+```
+
+
 ### Documentation
 
 TODO

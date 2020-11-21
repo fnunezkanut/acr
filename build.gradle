@@ -5,6 +5,7 @@ plugins {
     id 'jacoco'
     id 'org.springframework.boot' version '2.4.0'
     id 'io.spring.dependency-management' version '1.0.10.RELEASE'
+    id 'org.flywaydb.flyway' version '7.2.1'
 }
 
 ext {
@@ -13,7 +14,7 @@ ext {
     swagger_version = "2.9.2"
     junit_version = "5.7.0"
     testcontainers_version = "1.15.0"
-    flyway_version = "7.2.0"
+    flyway_version = "7.2.1"
 
     limits = [
         'branch'     : 0,
@@ -50,7 +51,21 @@ configurations {
     integrationTestRuntimeOnly.extendsFrom runtimeOnly
 }
 
+configurations {
+    flywayMigration
+}
+
+flyway {
+    createSchemas = true
+    locations = ['filesystem:src/main/resources/db/migration']
+    configurations = ['flywayMigration']
+}
+
 dependencies {
+
+    flywayMigration(
+            'org.postgresql:postgresql:42.2.18'
+    )
 
     implementation(
             //various spring boot dependencies
