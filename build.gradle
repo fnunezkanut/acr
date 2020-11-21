@@ -15,6 +15,7 @@ ext {
     junit_version = "5.7.0"
     testcontainers_version = "1.15.0"
     flyway_version = "7.2.1"
+    postgres_version = "42.2.18"
 
     limits = [
         'branch'     : 0,
@@ -64,12 +65,13 @@ flyway {
 dependencies {
 
     flywayMigration(
-            'org.postgresql:postgresql:42.2.18'
+            "org.postgresql:postgresql:$postgres_version"
     )
 
     implementation(
             //various spring boot dependencies
             "org.springframework.boot:spring-boot-starter-web",
+            "org.springframework.boot:spring-boot-starter-jdbc",
             "org.springframework.boot:spring-boot-starter-actuator",
             // Kotlin dependencies
             "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version",
@@ -79,7 +81,9 @@ dependencies {
             "com.fasterxml.jackson.core:jackson-databind:$jackson_version",
             "com.fasterxml.jackson.module:jackson-module-kotlin:$jackson_version",
             //gives us nice logging in kotlin
-            "io.github.microutils:kotlin-logging:2.0.3"
+            "io.github.microutils:kotlin-logging:2.0.3",
+            //db stuff
+            "org.postgresql:postgresql:$postgres_version"
     )
 
     //have these available in both test and integration tests
@@ -148,9 +152,11 @@ jacocoTestReport {
     }
 
     //exclude these packages from coverage result as they are config/boilerplate
+    //db repo classes covered by db integration tests
     afterEvaluate {
         classDirectories.setFrom(files(classDirectories.files.collect {
             fileTree(dir: it, exclude: [
+                    'com/github/fnunezkanut/repository/**',
                     'com/github/fnunezkanut/model/**',
                     'com/github/fnunezkanut/config/**',
                     'com/github/fnunezkanut/App**'
