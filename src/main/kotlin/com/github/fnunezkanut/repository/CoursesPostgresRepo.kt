@@ -76,4 +76,60 @@ WHERE courses.code = :code
         }
         return results.firstOrNull()
     }
+
+
+    //creates a course<>professor relation, true on success
+    fun addProfessorRelation(courseUid: String, professorUid: String): Boolean {
+
+        val sql = """
+INSERT INTO courses_professors (
+    course_uid,
+    professor_uid
+) VALUES (
+    :course_uid,
+    :professor_uid
+) ON CONFLICT DO NOTHING;
+""".trimIndent()
+
+        val parameters = MapSqlParameterSource()
+            .addValue("course_uid", UUID.fromString(courseUid))
+            .addValue("professor_uid", UUID.fromString(professorUid))
+
+        val numRows = try {
+            jdbc.update(sql, parameters)
+        } catch (e: Exception) {
+            logger.error("failed to add course<>professor relation", e)
+            0
+        }
+
+        return numRows == 1 //if all went well 1 row was added
+    }
+
+
+    //creates a course<>professor relation, true on success
+    fun addStudentRelation(courseUid: String, studentUid: String): Boolean {
+
+        val sql = """
+INSERT INTO courses_students (
+    course_uid,
+    student_uid
+) VALUES (
+    :course_uid,
+    :student_uid
+) ON CONFLICT DO NOTHING;
+""".trimIndent()
+
+        val parameters = MapSqlParameterSource()
+            .addValue("course_uid", UUID.fromString(courseUid))
+            .addValue("student_uid", UUID.fromString(studentUid))
+
+        val numRows = try {
+            jdbc.update(sql, parameters)
+        } catch (e: Exception) {
+            logger.error("failed to add course<>professor relation", e)
+            0
+        }
+
+        return numRows == 1 //if all went well 1 row was added
+    }
 }
