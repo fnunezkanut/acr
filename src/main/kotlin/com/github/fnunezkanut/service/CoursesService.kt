@@ -3,12 +3,16 @@ package com.github.fnunezkanut.service
 import com.github.fnunezkanut.config.ApiError
 import com.github.fnunezkanut.model.Course
 import com.github.fnunezkanut.repository.CoursesPostgresRepo
+import com.github.fnunezkanut.repository.ProfessorsPostgresRepo
+import com.github.fnunezkanut.repository.StudentsPostgresRepo
 import mu.KotlinLogging
 import org.springframework.stereotype.Service
 
 @Service
 class CoursesService(
-    private val coursesRepo: CoursesPostgresRepo
+    private val coursesRepo: CoursesPostgresRepo,
+    private val professorsRepo: ProfessorsPostgresRepo,
+    private val studentsRepo: StudentsPostgresRepo,
 ) {
 
     private val logger = KotlinLogging.logger {}
@@ -58,6 +62,15 @@ class CoursesService(
 
     //creates a course<>professor relation
     fun assignProfessor(courseUid: String, professorUid: String) {
+
+        //double check such a professor and course exist
+        if (coursesRepo.fetch(uid = courseUid) != null) {
+            throw ApiError(404, "No such course: $courseUid")
+        }
+        if (professorsRepo.fetch(uid = professorUid) != null) {
+            throw ApiError(404, "No such professor: $professorUid")
+        }
+
         val added = coursesRepo.addProfessorRelation(courseUid, professorUid)
         if (!added) {
             throw ApiError(500, "Failed to assign a professor to a course")
@@ -67,9 +80,27 @@ class CoursesService(
 
     //creates a course<>student relation
     fun registerStudent(courseUid: String, studentUid: String) {
+
+        //double check such a student and course exist
+        if (coursesRepo.fetch(uid = courseUid) != null) {
+            throw ApiError(404, "No such course: $courseUid")
+        }
+        if (studentsRepo.fetch(uid = studentUid) != null) {
+            throw ApiError(404, "No such student: $studentUid")
+        }
+
         val added = coursesRepo.addStudentRelation(courseUid, studentUid)
         if (!added) {
             throw ApiError(500, "Failed to register a student to a course")
         }
+    }
+
+
+    //retrieve a single course using its main identifier
+    fun fetch(uid: String): Course {
+
+        return coursesRepo.fetch(
+            uid = uid
+        ) ?: throw ApiError(404, "No such course: $uid")
     }
 }

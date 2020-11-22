@@ -24,8 +24,6 @@ class CoursesRegisterStudent(
 
         logger.info { "event: registering a student $studentUid to a course: $courseUid" }
 
-        //TODO check such a student and/or course exists
-
         coursesService.registerStudent(
             courseUid = courseUid,
             studentUid = studentUid

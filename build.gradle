@@ -18,8 +18,8 @@ ext {
     postgres_version = "42.2.18"
 
     limits = [
-        'branch'     : 60,
-        'line'       : 50
+        'branch'     : 54,
+        'line'       : 85
     ]
 }
 

@@ -78,6 +78,30 @@ WHERE courses.code = :code
     }
 
 
+    //lookup a single entry with primary key
+    fun fetch(uid: String): Course? {
+
+        val sql = """
+SELECT uid, code, name 
+FROM courses 
+WHERE courses.uid = :uid
+        """.trimIndent()
+        val parameters = MapSqlParameterSource()
+            .addValue("uid", UUID.fromString(uid))
+
+        val results = jdbc.query(sql, parameters) { rs, _ ->
+
+            //mapping from db row to dto
+            Course(
+                uid = rs.kString("uid"),
+                code = rs.kString("code"),
+                name = rs.kString("name")
+            )
+        }
+        return results.firstOrNull()
+    }
+
+
     //creates a course<>professor relation, true on success
     fun addProfessorRelation(courseUid: String, professorUid: String): Boolean {
 

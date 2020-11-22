@@ -4,6 +4,8 @@ package com.github.fnunezkanut.service
 import com.github.fnunezkanut.expectApiError
 import com.github.fnunezkanut.model.Course
 import com.github.fnunezkanut.repository.CoursesPostgresRepo
+import com.github.fnunezkanut.repository.ProfessorsPostgresRepo
+import com.github.fnunezkanut.repository.StudentsPostgresRepo
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -13,10 +15,14 @@ import org.junit.jupiter.api.Test
 class CoursesServiceTest {
 
     private val coursesRepo = mockk<CoursesPostgresRepo>()
+    private val professorsRepo = mockk<ProfessorsPostgresRepo>()
+    private val studentsRepo = mockk<StudentsPostgresRepo>()
 
     //under test
     private val service = CoursesService(
-        coursesRepo = coursesRepo
+        coursesRepo = coursesRepo,
+        professorsRepo = professorsRepo,
+        studentsRepo = studentsRepo
     )
 
 
