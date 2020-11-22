@@ -12,6 +12,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.transaction.annotation.EnableTransactionManagement
 import org.springframework.web.servlet.config.annotation.ContentNegotiationConfigurer
 import org.springframework.web.servlet.config.annotation.EnableWebMvc
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 import java.util.*
 import javax.annotation.PostConstruct
@@ -62,5 +63,16 @@ class App {
 
         @Bean(name = ["jdbc"])
         fun jdbc(): NamedParameterJdbcTemplate = NamedParameterJdbcTemplate(pgDataSource())
+    }
+
+
+    //config for swagger api documentation to show when base url is looked up
+    @Configuration
+    @EnableWebMvc
+    class SwaggerUiConfig : WebMvcConfigurer {
+        override fun addResourceHandlers(registry: ResourceHandlerRegistry?) {
+            registry!!.addResourceHandler("swagger-ui.html").addResourceLocations("classpath:/META-INF/resources/")
+            registry.addResourceHandler("/webjars/**").addResourceLocations("classpath:/META-INF/resources/webjars/")
+        }
     }
 }

@@ -16,7 +16,9 @@ ext {
     testcontainers_version = "1.15.0"
     flyway_version = "7.2.1"
     postgres_version = "42.2.18"
+    swagger_version = "2.9.2"
 
+    //if code coverage drops below these build would fail
     limits = [
         'branch'     : 54,
         'line'       : 85
@@ -25,7 +27,7 @@ ext {
 
 
 bootJar {
-    mainClass.set('com.github.fnunezkanut.AppKt')
+    mainClass.set('com.github.fnunezkanut.AppKt') //entry point into springboot app
     manifest {
         attributes(
                 "Implementation-Title": "ACR REST API",
@@ -83,7 +85,10 @@ dependencies {
             //gives us nice logging in kotlin
             "io.github.microutils:kotlin-logging:2.0.3",
             //db stuff
-            "org.postgresql:postgresql:$postgres_version"
+            "org.postgresql:postgresql:$postgres_version",
+            // Swagger API documentation
+            "io.springfox:springfox-swagger2:$swagger_version",
+            "io.springfox:springfox-swagger-ui:$swagger_version"
     )
 
     //have these available in both test and integration tests
@@ -124,7 +129,7 @@ test {
     }
 }
 
-
+//db integration tests using testcontainers
 task integrationTest(type: Test) {
     description 'Runs integration tests.'
 
