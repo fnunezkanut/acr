@@ -1,16 +1,21 @@
 # ACR - Academic Course Registration demo
 
-Sample spring boot service to model an Academic Course Registration system
+Sample spring boot service to model an Academic Course Registration system:
+
+* swagger API documentation [as of 22-11-2020]: http://ec2co-ecsel-1mqis9lvmto3d-193356279.eu-west-1.elb.amazonaws.com/swagger-ui.html
+* base url on AWS: `http://ec2co-ecsel-1mqis9lvmto3d-193356279.eu-west-1.elb.amazonaws.com/`
+* base url when developing locally: `http://127.0.0.1:8080/`
 
 Purpose is: 
 * Illustrate use of springboot + kotlin for a simple REST API following the [12factor practices](https://12factor.net/)
 * Have both unit and db integration tests with high coverage
-* Have API documentation with swagger (TODO)
+* Show API documented with swagger annotations
 * Load test using a parallel project [acr-loadtester](https://github.com/fnunezkanut/acr-loadtester)
 * Deploy to AWS showing use of Docker, ECR, ECS and RDS as well as other aws plumbing
 
 ![overview](overview.png)
 
+![swagger](swagger.png)
 
 ## Requirements
 * JDK 1.8
@@ -127,3 +132,9 @@ ensure JDBC_* env params are set and pointing at the RDS database so springboot 
 ## Load Testing
 
 See parallel project for load testing the rest api with gatling parallel project [acr-loadtester](https://github.com/fnunezkanut/acr-loadtester)
+
+## PAW
+
+Paw is a great API tool on mac, https://paw.cloud/ similar to Postman but better :)
+
+Included is an `acr.paw` file used during development of this project
