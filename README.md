@@ -9,6 +9,8 @@ Purpose is:
 * Load test using a parallel project [acr-loadtester](https://github.com/fnunezkanut/acr-loadtester)
 * Deploy to AWS showing use of Docker, ECR, ECS and RDS as well as other aws plumbing
 
+![overview](overview.png)
+
 
 ## Requirements
 * JDK 1.8
