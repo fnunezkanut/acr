@@ -64,10 +64,10 @@ class CoursesService(
     fun assignProfessor(courseUid: String, professorUid: String) {
 
         //double check such a professor and course exist
-        if (coursesRepo.fetch(uid = courseUid) != null) {
+        if (coursesRepo.fetch(uid = courseUid) == null) {
             throw ApiError(404, "No such course: $courseUid")
         }
-        if (professorsRepo.fetch(uid = professorUid) != null) {
+        if (professorsRepo.fetch(uid = professorUid) == null) {
             throw ApiError(404, "No such professor: $professorUid")
         }
 
@@ -82,10 +82,10 @@ class CoursesService(
     fun registerStudent(courseUid: String, studentUid: String) {
 
         //double check such a student and course exist
-        if (coursesRepo.fetch(uid = courseUid) != null) {
+        if (coursesRepo.fetch(uid = courseUid) == null) {
             throw ApiError(404, "No such course: $courseUid")
         }
-        if (studentsRepo.fetch(uid = studentUid) != null) {
+        if (studentsRepo.fetch(uid = studentUid) == null) {
             throw ApiError(404, "No such student: $studentUid")
         }
 

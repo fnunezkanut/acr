@@ -20,8 +20,8 @@ ext {
 
     //if code coverage drops below these build would fail
     limits = [
-        'branch'     : 54,
-        'line'       : 85
+        'branch'     : 77,
+        'line'       : 94
     ]
 }
 
