@@ -70,6 +70,10 @@ class CoursesPostgresRepoTest {
             )
         ) ?: fail("failed to add a course")
 
+        coursesRepo.fetch(
+            uid = courseResult.uid
+        ) ?: fail("failed to lookup a course by uid:${courseResult.uid}")
+
         val professorCode = ('0'..'9').randomString(7)
         val professorResult = professorsRepo.add(
             professor = Professor(
@@ -79,6 +83,10 @@ class CoursesPostgresRepoTest {
             )
         ) ?: fail("failed to add a professor")
 
+        professorsRepo.fetch(
+            uid = professorResult.uid
+        ) ?: fail("failed to lookup a professor by uid:${professorResult.uid}")
+
         val studentCode = ('0'..'9').randomString(8)
         val studentResult = studentsRepo.add(
             student = Student(
@@ -87,6 +95,10 @@ class CoursesPostgresRepoTest {
                 code = studentCode
             )
         ) ?: fail("failed to add a student")
+
+        studentsRepo.fetch(
+            uid = studentResult.uid
+        ) ?: fail("failed to lookup a student by uid:${studentResult.uid}")
 
 
         //great now that we have that setup, register the professor and student to the course

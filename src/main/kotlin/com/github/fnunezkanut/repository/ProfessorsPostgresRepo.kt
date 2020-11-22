@@ -79,4 +79,29 @@ WHERE professors.code = :code
         }
         return results.firstOrNull()
     }
+
+
+    //lookup a single entry given primary key
+    fun fetch(uid: String): Professor? {
+
+        val sql = """
+SELECT uid, code, first_name, last_name  
+FROM professors 
+WHERE professors.uid = :uid
+        """.trimIndent()
+        val parameters = MapSqlParameterSource()
+            .addValue("uid", UUID.fromString(uid))
+
+        val results = jdbc.query(sql, parameters) { rs, _ ->
+
+            //mapping from db row to dto
+            Professor(
+                uid = rs.kString("uid"),
+                code = rs.kString("code"),
+                firstName = rs.kString("first_name"),
+                lastName = rs.kString("last_name")
+            )
+        }
+        return results.firstOrNull()
+    }
 }

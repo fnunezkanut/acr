@@ -52,4 +52,12 @@ class StudentsService(
 
     //double check provided name value from user input
     fun checkName(_name: String): String = _name.trim()
+
+    //retrieve a single student using its main identifier
+    fun fetch(uid: String): Student {
+
+        return studentsRepo.fetch(
+            uid = uid
+        ) ?: throw ApiError(404, "No such student: $uid")
+    }
 }

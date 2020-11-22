@@ -24,8 +24,6 @@ class CoursesAssignProfessor(
 
         logger.info { "event: assigning a professor $professorUid to a course: $courseUid" }
 
-        //TODO check such a professor and/or course exists
-
         coursesService.assignProfessor(
             courseUid = courseUid,
             professorUid = professorUid

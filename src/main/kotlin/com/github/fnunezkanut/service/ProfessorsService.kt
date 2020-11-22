@@ -52,4 +52,13 @@ class ProfessorsService(
 
     //double check provided name value from user input
     fun checkName(_name: String): String = _name.trim()
+
+
+    //retrieve a single professor using its main identifier
+    fun fetch(uid: String): Professor {
+
+        return professorsRepo.fetch(
+            uid = uid
+        ) ?: throw ApiError(404, "No such professor: $uid")
+    }
 }

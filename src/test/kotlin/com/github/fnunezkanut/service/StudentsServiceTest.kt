@@ -4,11 +4,13 @@ package com.github.fnunezkanut.service
 import com.github.fnunezkanut.expectApiError
 import com.github.fnunezkanut.model.Student
 import com.github.fnunezkanut.repository.StudentsPostgresRepo
+import com.github.fnunezkanut.util.randomString
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import java.util.*
 
 class StudentsServiceTest {
 
@@ -129,6 +131,68 @@ class StudentsServiceTest {
 
         verify(atLeast = 1) {
             studentsRepo.add(validated)
+        }
+    }
+
+
+    @Test
+    fun `create(), db failure`() {
+
+        //given
+        val validated = Student(
+            code = "20012345",
+            firstName = "Test",
+            lastName = "Name"
+        )
+
+        every {
+            studentsRepo.add(validated)
+        } returns null
+
+        //when, then
+        expectApiError(500) {
+            service.create(validated = validated)
+        }
+    }
+
+
+    @Test
+    fun `fetch(), normal run`() {
+
+        //given
+        val student = Student(
+            uid = UUID.randomUUID().toString(),
+            code = ('a'..'z').randomString(8),
+            firstName = "maggie",
+            lastName = "simpsons"
+        )
+
+        every {
+            studentsRepo.fetch(student.uid)
+        } returns student
+
+        //when
+        val actual = service.fetch(uid = student.uid)
+
+        //then
+        assertThat(actual.firstName).isEqualTo("maggie")
+        assertThat(actual.uid).isEqualTo(student.uid)
+    }
+
+
+    @Test
+    fun `fetch(), nothing in db`() {
+
+        //given
+        val uid = UUID.randomUUID().toString()
+
+        every {
+            studentsRepo.fetch(uid)
+        } returns null
+
+        //when, then
+        expectApiError(404) {
+            service.fetch(uid = uid)
         }
     }
 }
